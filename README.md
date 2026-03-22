@@ -76,6 +76,16 @@ cd FluorCode
 python model/Baseline_FPredX/training_and_benchmark.py
 ```
 
+### Set up SimpleFold
+
+SimpleFold must be deployed before running structure prediction. Follow the installation instructions at [apple/ml-simplefold](https://github.com/apple/ml-simplefold).
+
+```bash
+git clone https://github.com/apple/ml-simplefold.git
+cd ml-simplefold
+# Follow the repo's setup instructions
+```
+
 ### Regenerate data from scratch
 
 ```bash
