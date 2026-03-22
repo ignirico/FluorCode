@@ -1,6 +1,6 @@
 # FluorCode
 
-Predicting fluorescent protein (FP) photophysical properties using position-aware protein language model features. This project accompanies the paper *"Position Matters: Alignment-Anchored PLM Features for Fluorescent Protein Property Prediction"*, targeting the ICML 2025 Workshop on Computational Biology.
+Predicting fluorescent protein (FP) photophysical properties using position-aware protein language model features. This project is targeting the ICML 2026 Workshop on Computational Biology.
 
 ## Motivation
 
