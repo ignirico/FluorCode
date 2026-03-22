@@ -1,0 +1,51 @@
+FPbase Data Pipeline
+============================================================
+
+=== Step 1: Fetch FPbase data ===
+[fetch] GET https://www.fpbase.org/api/proteins/
+[fetch] Saved 1040 records → data/fpbase_raw.json
+[fetch] GET https://www.fpbase.org/api/proteins/basic/
+[fetch] Saved 814 records → data/fpbase_basic_raw.json
+Full records   : 1040
+Basic records  : 814
+
+=== Step 2: Parse records ===
+Records with sequence : 990
+Records without seq   : 50
+Unique sequences      : 990
+After dedup by seq    : 990  (removed 0 duplicates)
+Raw FASTA written     : data/fp_sequences_raw.fasta  (990 sequences)
+
+=== Step 3: MAFFT alignment (default settings) ===
+Running: mafft --auto --quiet data/fp_sequences_raw.fasta
+Aligned sequences     : 990  → data/fp_sequences_aligned.fasta
+
+=== Step 4: trimAl filtering ===
+  residue overlap  >= 90%
+  sequence overlap >= 90%
+Running: trimal -in data/fp_sequences_aligned.fasta -out data/fp_sequences_trimmed.fasta -resoverlap 0.9 -seqoverlap 90
+After trimAl          : 986  → data/fp_sequences_trimmed.fasta
+
+
+=== Step 5: Merge filtered sequences with properties ===
+Sequences kept by trimAl: 986
+Rows before filter    : 990
+Rows after filter     : 986
+Cleaned CSV saved     : data/fp_cleaned.csv
+
+Property coverage in cleaned dataset:
+  ex_max         : 872/986 (88.4%)
+  em_max         : 833/986 (84.5%)
+  ext_coeff      : 623/986 (63.2%)
+  qy             : 693/986 (70.3%)
+  brightness     : 599/986 (60.8%)
+  pka            : 402/986 (40.8%)
+  maturation     : 177/986 (18.0%)
+  lifetime       : 191/986 (19.4%)
+  bleach         : 188/986 (19.1%)
+  agg            : 668/986 (67.7%)
+  cofactor       : 59/986 (6.0%)
+
+=== Pipeline complete ===
+Final dataset: 986 FP sequences with properties
+Output: data/fp_cleaned.csv

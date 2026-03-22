@@ -1,0 +1,18 @@
+ESMC Embedding Pipeline
+Model  : esmc_300m
+Device : mps
+============================================================
+Loaded 986 sequences from data/fp_cleaned.csv
+Sequences to embed: 986
+
+Loading esmc_300m...
+Model loaded.
+
+Embedded : 986
+Failed   : 0
+Embedding matrix shape: (986, 960)  dtype: float32
+Saved embeddings → data/fp_embeddings.npz
+Saved metadata   → data/fp_embeddings_meta.csv
+
+Sanity check passed: (986, 960)
+Done.
