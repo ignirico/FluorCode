@@ -102,7 +102,8 @@ python data/parse_structures.py
 ## Key References
 
 - Tam & Zhang. *FPredX: Predicting fluorescent protein properties using alignment-based features.* Proteins, 2022.
-- Lin et al. *Evolutionary-scale prediction of atomic-level protein structure with a language model.* Science, 2023. (ESMFold / SimpleFold)
+- Lin et al. *Evolutionary-scale prediction of atomic-level protein structure with a language model.* Science, 2023. (ESMFold)
+- Kothari et al. *SimpleFold: Fast and accurate protein structure prediction without multiple sequence alignments.* [arXiv:2509.18480](https://arxiv.org/abs/2509.18480), 2025.
 
 ## License
 
