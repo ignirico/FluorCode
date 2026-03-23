@@ -30,6 +30,10 @@ Reimplementation of [FPredX](https://doi.org/10.1002/prot.26372) (Tam & Zhang, *
 | Ext coeff | 17,837 | 12,833 | N/A | -- |
 | pKa | 0.696 | 0.360 | N/A | -- |
 
+![MAE Comparison vs FPredX](model/Baseline_FPredX/benchmark_results/MAE_comparison_vs_fprex.png)
+
+![Scatter Comparison vs FPredX](model/Baseline_FPredX/benchmark_results/scatter_comparison_vs_fprex.png)
+
 ## Project Structure
 
 ```
