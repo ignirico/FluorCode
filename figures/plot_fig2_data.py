@@ -1,9 +1,8 @@
-"""
-Figure 2: FPbase dataset statistics for ICML AI4Science workshop paper.
+"""FPbase dataset overview: correlation heatmap, ex-vs-em landscape, attrition funnel, per-target KDEs.
 
-Layout (2 rows, 3 cols):
-  Top:    (a) Property correlation heatmap  |  (b) FP landscape: ex vs em  |  (c) Pipeline attrition
-  Bottom: (d) ex_max KDE by stage  |  (e) em_max KDE by stage  |  (f) QY KDE by stage
+Layout (2x3):
+  Top    (a) property correlations  (b) ex vs em landscape  (c) pipeline attrition
+  Bottom (d-f) KDE of ex_max / em_max / QY across data stages
 """
 
 import json

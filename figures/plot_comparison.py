@@ -1,16 +1,12 @@
-"""
-Publication-quality comparison figures for ICML AI4Science workshop paper.
+"""Random-CV and clustered-CV comparison plots for FPredX, LoRA+XGB, LoRA+MLP.
 
-Models: FPredX (baseline), LoRA-ESM2+XGBoost, LoRA-ESM2+MLP
-Outputs:
-  - fig3_random_cv.png           — Random CV: Pearson R + MAE (all 6 properties)
-  - fig4_clustered_cv.png        — Clustered CV: (a) Pearson R, (b) MAE degradation, (c) MAE bar
-  - mae_degradation_across_thresholds.png — standalone version of Fig 4b
+Reads from:
+  benchmark/clustered/clustered_cv_results.csv  (FPredX, LoRA+XGB: ex/em/brightness)
+  figures/xgb_extra_results.csv                  (FPredX, LoRA+XGB: qy/ext_coeff/pka)
+  figures/mlp_benchmark_results.csv              (LoRA+MLP: all targets)
 
-Data sources:
-  - FPredX & LoRA+XGBoost (ex/em/brightness): benchmark/clustered/clustered_cv_results.csv
-  - FPredX & LoRA+XGBoost (qy/ext_coeff/pka): figures/xgb_extra_results.csv
-  - LoRA+MLP (all targets): figures/mlp_benchmark_results.csv
+Writes:
+  fig3_random_cv.png, fig4_clustered_cv.png, mae_degradation_across_thresholds.png
 
 Usage: python figures/plot_comparison.py
 """

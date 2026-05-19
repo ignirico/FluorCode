@@ -1,10 +1,7 @@
-"""
-FPbase Fluorescent Protein Data Fetching and Cleaning Pipeline
-Replicates methodology from: DOI reference - 738 non-redundant FP sequences
-Steps:
-  1. Fetch all FP sequences + properties from FPbase API
-  2. Align with MAFFT (default settings)
-  3. Filter with trimAl (residue overlap >= 90%, sequence overlap >= 90%)
+"""Fetch FP records from the FPbase API, align with MAFFT, filter with trimAl.
+
+Follows the FPredX (Tam & Zhang 2022) preprocessing recipe with their thresholds:
+residue overlap >= 90% and sequence overlap >= 90% in trimAl.
 """
 
 import os

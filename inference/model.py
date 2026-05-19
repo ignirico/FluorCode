@@ -1,15 +1,5 @@
-"""
-FluorCode — LoRA-ESM2 model architecture for fluorescent protein property prediction.
-
-Architecture:
-    ESM2-650M (frozen) + LoRA rank-16 adapters (layers 27-32, q/k/v/out_proj)
-    → ChromophoreAwareAttentionPooling (4 heads, 1280-dim output)
-    → 5 MLP prediction heads (ex_max, em_max, qy, ext_coeff, pka)
-
-Usage:
-    from model import build_model, load_checkpoint
-    model, alphabet = build_model()
-    load_checkpoint(model, "path/to/best.pt")
+"""LoRA-ESM2 model: ESM2-650M backbone with LoRA on layers 27-32 (q/k/v/out_proj),
+chromophore-aware attention pooling, and 5 MLP heads (ex_max, em_max, qy, ext_coeff, pka).
 """
 
 import torch

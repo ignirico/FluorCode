@@ -1,19 +1,7 @@
-"""
-FluorCode — Predict fluorescent protein photophysical properties from sequence.
-
-Predicts 5 properties: ex_max (nm), em_max (nm), quantum yield,
-extinction coefficient (M⁻¹cm⁻¹), pKa.
-
-Usage:
-    python predict.py --sequence MVSKGEEL... --checkpoint fold_0/best.pt
-    python predict.py --fasta proteins.fasta --checkpoint fold_0/best.pt
-    python predict.py --fasta proteins.fasta --checkpoint_dir model/LoRA_ESM2/checkpoints/ --ensemble
+"""Predict ex_max, em_max, qy, ext_coeff, pka for a sequence or FASTA.
 
 Examples:
-    # Single sequence
     python predict.py -s MVSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLK -c fold_0/best.pt
-
-    # FASTA file with ensemble (averages all 20 fold checkpoints)
     python predict.py -f my_fps.fasta -d checkpoints/ --ensemble
 """
 
