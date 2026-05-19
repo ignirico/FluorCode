@@ -106,20 +106,40 @@ Each checkpoint contains LoRA adapter weights, attention pooling parameters, pre
 
 ## Key Results
 
-### Random Cross-Validation (Pearson R)
+We evaluate all models under two cross-validation schemes:
 
-| Target | FPredX | LoRA+XGBoost | LoRA+MLP |
-|--------|--------|--------------|----------|
-| ex_max | 0.95 | 0.97 | 0.97 |
-| em_max | 0.95 | 0.97 | 0.97 |
-| qy | 0.89 | 0.96 | 0.96 |
-| ext_coeff | 0.94 | 0.97 | 0.97 |
-| pka | 0.72 | 0.90 | 0.91 |
-| brightness | 0.94 | 0.96 | 0.96 |
+- **Random CV**: standard 20-fold splits (seed 42), no sequence-identity constraints.
+- **Clustered CV**: MMseqs2 group K-fold at 90% / 70% / 50% identity (183 / 82 / 37 clusters). Members of a cluster always share a fold, preventing family-level leakage.
 
-### Clustered CV (50% Sequence Identity)
+### Pearson R — Random vs. Clustered (50% identity)
 
-Under stringent clustered cross-validation, FPredX collapses (R < 0.2 for QY/ext_coeff/pKa) while LoRA-based models maintain R > 0.87 across all targets.
+| Target     | FPredX (rand) | LoRA+XGB (rand) | LoRA+MLP (rand) | FPredX (50%) | LoRA+XGB (50%) | LoRA+MLP (50%) |
+|------------|:-------------:|:---------------:|:---------------:|:------------:|:--------------:|:--------------:|
+| ex_max     | 0.89          | 0.95            | **0.97**        | 0.58         | 0.93           | **0.95**       |
+| em_max     | 0.92          | 0.97            | **0.97**        | 0.63         | 0.94           | **0.95**       |
+| qy         | 0.75          | 0.93            | **0.96**        | 0.16         | 0.92           | **0.95**       |
+| ext_coeff  | 0.70          | 0.96            | **0.97**        | 0.14         | 0.95           | **0.96**       |
+| pka        | 0.48          | 0.88            | **0.91**        | 0.13         | 0.87           | **0.91**       |
+| brightness | 0.78          | 0.91            | **0.96**        | 0.13         | 0.90           | **0.96**       |
+
+### MAE degradation across clustering thresholds
+
+Mean absolute error for **excitation** / **emission** wavelength (nm). FPredX inflates sharply as family-level leakage is removed; LoRA-ESM2 remains stable.
+
+| Model           | Random        | 90%           | 70%           | 50%             |
+|-----------------|:-------------:|:-------------:|:-------------:|:---------------:|
+| FPredX          | 12.7 / 8.3    | 23.7 / 17.3   | 25.6 / 19.4   | 35.6 / 30.5     |
+| LoRA-ESM2 (XGB) | 10.1 / 6.9    | 12.3 / 8.7    | 13.0 / 9.3    | 13.8 / 11.8     |
+| LoRA-ESM2 (MLP) | **8.9 / 6.7** | **9.7 / 8.4** | **9.7 / 8.1** | **11.3 / 9.9**  |
+
+### Takeaways
+
+- Under random CV the gap between one-hot FPredX and LoRA-ESM2 looks modest (2–3 nm MAE on spectral targets), but this protocol leaks family identity across folds.
+- Under 50%-identity clustered CV, FPredX collapses to near-noise on non-spectral targets (qy / ext_coeff / pKa / brightness, R ≈ 0.13–0.16), while LoRA-ESM2 retains R ≥ 0.87 across all six properties.
+- The MLP head consistently outperforms the XGBoost head — the LoRA backbone, chromophore-aware attention pooling, and MLP head are trained jointly, so the pooling can adapt to the downstream task.
+- Adding Pocket-3D chromophore-anchored structural descriptors (~95 dims, from 913 grafted + minimized structures) yields no consistent gain beyond LoRA-ESM2 in this setting.
+
+Full per-target MAE / RMSE / R tables across all four schemes are in [`benchmark/BENCHMARK_REPORT.md`](benchmark/BENCHMARK_REPORT.md) and the paper appendix.
 
 ## Data Pipeline
 
