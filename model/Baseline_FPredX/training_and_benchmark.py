@@ -5,19 +5,18 @@ Replicates FPredX's evaluation protocol (20-fold random CV)
 and compares alignment-based OneHot + XGBoost.
 
 FPredX used: 672 FPs, 3362 one-hot features, XGBoost, 20-fold random CV
-We use:      986 FPs, 1271 one-hot features, Optuna-tuned XGBoost, 20-fold random CV
+We use:      GFP-family only (no cofactor), Optuna-tuned XGBoost, 20-fold random CV
 
 FPredX results (from paper):
   ex_max best single fold MAE: 11.23 nm
   em_max best single fold MAE:  7.72 nm
 
 Usage:
-    python3 ML_Algorithms/Improved_FPredX/benchmark_vs_fprex.py
+    python3 model/Baseline_FPredX/training_and_benchmark.py
 
 Output:
-    ML_Algorithms/Improved_FPredX/benchmark_results/
+    model/Baseline_FPredX/benchmark_results/
 """
-# hiiiiiiii
 import json
 import warnings
 import numpy as np
@@ -27,7 +26,7 @@ from collections import Counter
 from Bio import SeqIO
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 import xgboost as xgb
 import optuna
 
@@ -122,12 +121,14 @@ def evaluate_20fold(X, y, params):
     pooled_mae = mean_absolute_error(y, all_preds)
     pooled_rmse = np.sqrt(mean_squared_error(y, all_preds))
     pooled_r, _ = pearsonr(y, all_preds)
+    pooled_rho, _ = spearmanr(y, all_preds)
     pooled_r2 = 1 - np.sum((y - all_preds)**2) / np.sum((y - y.mean())**2)
 
     return {
         "pooled_mae": float(pooled_mae),
         "pooled_rmse": float(pooled_rmse),
         "pooled_r": float(pooled_r),
+        "pooled_rho": float(pooled_rho),
         "pooled_r2": float(pooled_r2),
         "mean_fold_mae": float(np.mean(fold_maes)),
         "std_fold_mae": float(np.std(fold_maes)),
@@ -142,11 +143,18 @@ def evaluate_20fold(X, y, params):
 def main():
     # ── Load data ─────────────────────────────────────────────
     aligned = {}
-    for rec in SeqIO.parse(DATA_DIR / "fp_sequences_aligned.fasta", "fasta"):
+    for rec in SeqIO.parse(DATA_DIR / "sequence" / "fp_sequences_aligned.fasta", "fasta"):
         aligned[rec.id] = str(rec.seq)
 
-    meta = pd.read_csv(DATA_DIR / "fp_embeddings_meta.csv")
+    meta = pd.read_csv(DATA_DIR / "sequence" / "fp_embeddings_meta.csv")
     print(f"Total FPs: {len(meta)}")
+
+    # Filter: GFP-family only (exclude cofactor-dependent FPs)
+    n_before = len(meta)
+    meta = meta[meta["cofactor"].isna()].reset_index(drop=True)
+    meta["emb_idx"] = np.arange(len(meta))  # reindex after filtering
+    print(f"Excluded {n_before - len(meta)} cofactor-dependent FPs")
+    print(f"GFP-family FPs: {len(meta)}")
     print(f"FPs with alignment: {sum(s in aligned for s in meta['slug'])}")
 
     # ── Build features ────────────────────────────────────────
@@ -211,6 +219,7 @@ def main():
         else:
             print(f"  {'Best fold MAE':<25s} {result['best_fold_mae']:10.2f} {'N/A':>10s}")
         print(f"  {'Pearson r':<25s} {result['pooled_r']:10.4f}")
+        print(f"  {'Spearman ρ':<25s} {result['pooled_rho']:10.4f}")
         print(f"  {'R²':<25s} {result['pooled_r2']:10.4f}")
 
         # Save per-target
@@ -227,12 +236,12 @@ def main():
     print(f"\n{'='*60}")
     print("SUMMARY — 20-Fold Random CV Benchmark")
     print(f"{'='*60}")
-    print(f"\n{'Target':>12s} {'n':>6s} {'Pooled MAE':>12s} {'Best Fold':>12s} {'FPredX':>12s} {'Beat?':>8s} {'r':>8s} {'R²':>8s}")
-    print("-" * 80)
+    print(f"\n{'Target':>12s} {'n':>6s} {'Pooled MAE':>12s} {'Best Fold':>12s} {'FPredX':>12s} {'Beat?':>8s} {'r':>8s} {'ρ':>8s} {'R²':>8s}")
+    print("-" * 90)
     for r in all_results:
         fprex_val = f"{r['fprex_best_fold_mae']:.2f}" if r["fprex_best_fold_mae"] else "N/A"
         beat = "YES" if r.get("beats_fprex_best_fold") else ("no" if r.get("beats_fprex_best_fold") is not None else "—")
-        print(f"{r['target']:>12s} {r['n_samples']:6d} {r['pooled_mae']:12.4f} {r['best_fold_mae']:12.4f} {fprex_val:>12s} {beat:>8s} {r['pooled_r']:8.4f} {r['pooled_r2']:8.4f}")
+        print(f"{r['target']:>12s} {r['n_samples']:6d} {r['pooled_mae']:12.4f} {r['best_fold_mae']:12.4f} {fprex_val:>12s} {beat:>8s} {r['pooled_r']:8.4f} {r['pooled_rho']:8.4f} {r['pooled_r2']:8.4f}")
 
     # Save summary
     summary = pd.DataFrame([{k: v for k, v in r.items() if k not in ["all_fold_maes", "xgb_params"]}

@@ -30,9 +30,9 @@ warnings.filterwarnings("ignore")
 
 ROOT       = Path(__file__).parent
 DATA_DIR   = ROOT / "data"
-STRUCT_DIR = DATA_DIR / "structures"
+STRUCT_DIR = DATA_DIR / "structure"
 SF_PRED    = DATA_DIR / "simplefold_output" / "predictions_simplefold_100M"
-META_CSV   = DATA_DIR / "fp_cleaned.csv"
+META_CSV   = DATA_DIR / "sequence" / "fp_cleaned.csv"
 OUT_PKL    = DATA_DIR / "structure_features.pkl"
 
 # RCSB structures are in STRUCT_DIR, named {slug}.pdb

@@ -4,7 +4,7 @@ Structure Collection Pipeline
 Step 1 — Fetch experimental PDB structures from RCSB (priority).
 Step 2 — Fold remaining sequences with Apple SimpleFold 100M + MLX.
 
-All structures saved to: data/structures/<slug>.pdb
+All structures saved to: data/structure/<slug>.pdb
 
 Usage:
     python3 fold_simplefold.py
@@ -25,16 +25,18 @@ from pathlib import Path
 # ── Config ────────────────────────────────────────────────────────────────────
 ROOT       = Path(__file__).parent
 DATA_DIR   = ROOT / "data"
-STRUCT_DIR = DATA_DIR / "structures"
-META_CSV   = DATA_DIR / "fp_cleaned.csv"
+STRUCT_DIR = DATA_DIR / "structure"
+META_CSV   = DATA_DIR / "sequence" / "fp_cleaned.csv"
 LOG_FILE   = DATA_DIR / "structure_collection.log"
 
 STRUCT_DIR.mkdir(parents=True, exist_ok=True)
 
-# SimpleFold must be run from this directory for its internal imports to work
-# SimpleFold needs its own venv (conflicts with ESM3 used for embeddings)
-SF_VENV     = Path("/Users/ekko/Desktop/FluorCode/ml-simplefold/.venv/bin/python3")
-SF_WORKDIR  = Path("/Users/ekko/Desktop/FluorCode/ml-simplefold/src/simplefold")
+# SimpleFold must be run from this directory for its internal imports to work.
+# Set these env vars (or edit the paths below) to point to your SimpleFold installation:
+#   SIMPLEFOLD_VENV  — path to SimpleFold's Python interpreter
+#   SIMPLEFOLD_DIR   — path to SimpleFold's src/simplefold directory
+SF_VENV     = Path(os.environ.get("SIMPLEFOLD_VENV", "/path/to/ml-simplefold/.venv/bin/python3"))
+SF_WORKDIR  = Path(os.environ.get("SIMPLEFOLD_DIR", "/path/to/ml-simplefold/src/simplefold"))
 SF_CKPT_DIR = ROOT / "artifacts"  # Valid checkpoints (6.3GB for 1.6B)
 SF_MODEL    = "simplefold_100M"
 SF_BACKEND  = "mlx"

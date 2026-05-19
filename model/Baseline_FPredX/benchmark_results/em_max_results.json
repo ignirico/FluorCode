@@ -1,0 +1,30 @@
+{
+  "pooled_mae": 9.059420599168346,
+  "pooled_rmse": 20.053659614033016,
+  "pooled_r": 0.9263445378393074,
+  "pooled_rho": 0.8931716032765693,
+  "pooled_r2": 0.8580041714853419,
+  "mean_fold_mae": 9.067740655814106,
+  "std_fold_mae": 3.0520333294838085,
+  "best_fold_mae": 4.038648103412829,
+  "worst_fold_mae": 17.646420127467106,
+  "target": "em_max",
+  "n_samples": 775,
+  "fprex_best_fold_mae": 7.72,
+  "fprex_naive_mae": 9.19,
+  "beats_fprex_best_fold": true,
+  "beats_fprex_pooled": false,
+  "xgb_params": {
+    "n_estimators": 483,
+    "max_depth": 7,
+    "learning_rate": 0.08578154279576175,
+    "subsample": 0.9995400399547856,
+    "colsample_bytree": 0.3652655454398781,
+    "reg_alpha": 4.640804120358341,
+    "reg_lambda": 0.02477090616357309,
+    "min_child_weight": 1,
+    "random_state": 42,
+    "n_jobs": -1,
+    "tree_method": "hist"
+  }
+}
