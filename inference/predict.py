@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from model import build_model, load_checkpoint, TARGETS
+from model import build_model, load_checkpoint, find_chromophore_positions, TARGETS
 
 CLAMP_RANGES = {
     "ex_max": (300, 800), "em_max": (300, 800),
@@ -49,9 +49,9 @@ def predict_single(model, alphabet, sequence, target_stats, device="cpu",
     tokens = tokens.to(device)
     seq_lens = torch.tensor([len(sequence)], dtype=torch.long, device=device)
 
-    chrom_pos = None
-    if chrom_positions is not None:
-        chrom_pos = torch.tensor([chrom_positions], dtype=torch.long, device=device)
+    if chrom_positions is None:
+        chrom_positions = find_chromophore_positions(sequence)
+    chrom_pos = torch.tensor([chrom_positions], dtype=torch.long, device=device)
 
     with torch.no_grad():
         preds, _ = model(tokens, seq_lens, chrom_pos)
@@ -80,9 +80,13 @@ def predict_batch(model, alphabet, sequences, target_stats, device="cpu",
         tokens = tokens.to(device)
         seq_lens = torch.tensor([len(seq) for _, seq in batch],
                                 dtype=torch.long, device=device)
+        chrom_pos = torch.tensor(
+            [find_chromophore_positions(seq) for _, seq in batch],
+            dtype=torch.long, device=device,
+        )
 
         with torch.no_grad():
-            preds, _ = model(tokens, seq_lens)
+            preds, _ = model(tokens, seq_lens, chrom_pos)
 
         for j in range(len(batch)):
             results = {"name": batch[j][0]}

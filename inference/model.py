@@ -122,3 +122,21 @@ def load_checkpoint(model, ckpt_path, device="cpu"):
     model.load_state_dict(ckpt["trainable_state"], strict=False)
     model.eval()
     return ckpt["target_stats"]
+
+
+def find_chromophore_positions(seq: str) -> list:
+    """Locate the chromophore triad XYG in an FP sequence.
+
+    Returns 0-indexed [x, y, g] for the candidate Y closest to position 64
+    (the avGFP-trimmed convention) with G immediately downstream. Returns
+    [-1, -1, -1] when no XYG match is found, which disables the chromophore
+    bias for that sequence.
+    """
+    candidates = [
+        (i - 1, i, i + 1)
+        for i in range(1, len(seq) - 1)
+        if seq[i] == "Y" and seq[i + 1] == "G"
+    ]
+    if not candidates:
+        return [-1, -1, -1]
+    return list(min(candidates, key=lambda c: abs(c[1] - 64)))
