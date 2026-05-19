@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large binary files (download separately)
+lora_embeddings_all_folds.npz
+pocket_embeddings_all_folds.npz
+structural_features.npz
+fp_embeddings.npz
+
+# Checkpoints (only fold_0 included; full set on HuggingFace)
+model/LoRA_ESM2/checkpoints/fold_[1-9]/
+model/LoRA_ESM2/checkpoints/fold_1[0-9]/

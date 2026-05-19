@@ -1,4 +1,4 @@
-# FluorCode: Predicting Fluorescent Protein Properties with LoRA-Fine-Tuned Protein Language Models
+# FluorCode: Predicting Fluorescent Protein Photophysical Properties with LoRA-Fine-Tuned Protein Language Models
 
 Code and data for the ICML 2026 AI4Science Workshop paper.
 
@@ -142,7 +142,7 @@ torch>=2.0, fair-esm, numpy, pandas, scikit-learn, scipy, xgboost, matplotlib, b
 
 ```
 @inproceedings{fluorcode2026,
-  title={FluorCode: Predicting Fluorescent Protein Properties with LoRA-Fine-Tuned Protein Language Models},
+  title={FluorCode: Predicting Fluorescent Protein Photophysical Properties with LoRA-Fine-Tuned Protein Language Models},
   author={Sou, Rico Chi Kit and Ziajowska, Alicja},
   booktitle={ICML 2026 Workshop on AI for Science},
   year={2026}
