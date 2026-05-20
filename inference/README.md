@@ -15,8 +15,17 @@ Predict fluorescent protein photophysical properties from amino acid sequence us
 ## Requirements
 
 ```bash
-pip install torch fair-esm numpy
+pip install torch "numpy<2" fair-esm
 ```
+
+> **Important:** Install `fair-esm`, **not** `esm`. The PyPI name `esm` is a different
+> package (EvolutionaryScale) that does not expose `esm.pretrained.esm2_t33_650M_UR50D`.
+> If you see `AttributeError: module 'esm' has no attribute 'pretrained'`, run:
+> `pip uninstall -y esm fair-esm && pip install fair-esm`.
+
+> **NumPy 2.x note:** prebuilt PyTorch wheels are typically compiled against NumPy 1.x.
+> If you see `A module that was compiled using NumPy 1.x cannot be run in NumPy 2.x`,
+> pin NumPy: `pip install "numpy<2"`.
 
 ## Usage
 
@@ -50,11 +59,11 @@ python predict.py \
 ### Python API
 
 ```python
-from model import build_model, load_checkpoint
+from model import build_model_for_checkpoint
 from predict import predict_single
 
-model, alphabet = build_model(device="cuda")
-target_stats = load_checkpoint(model, "fold_0/best.pt", device="cuda")
+# Auto-detects LoRA rank / pool layout from the checkpoint and builds a matching model.
+model, alphabet, target_stats = build_model_for_checkpoint("fold_0/best.pt", device="cuda")
 
 result = predict_single(
     model, alphabet,
@@ -69,15 +78,20 @@ print(result)
 ## Model Architecture
 
 ```
-Sequence → ESM2-650M (frozen) + LoRA rank-8 (layers 27-32)
+Sequence → ESM2-650M (frozen) + LoRA (layers 27-32)
          → ChromophoreAwareAttentionPooling (4 heads)
          → 5 MLP prediction heads
 ```
 
 - **Base model**: ESM2-650M (`esm2_t33_650M_UR50D`, 650M parameters)
-- **LoRA adapters**: rank=16, alpha=32, applied to q/v_proj in last 6 layers
+- **LoRA adapters**: rank-16, alpha=32, applied to q/k/v/out_proj in last 6 layers (kept scaling = 2.0)
 - **Trainable parameters**: ~500K (0.08% of ESM2)
 - **Pooling**: 4-head attention with learned chromophore position bias
+
+The bundled `fold_0/best.pt` (in `model/LoRA_ESM2/checkpoints/`) is an earlier-generation
+checkpoint with rank-8 LoRA on q/v_proj only and a simpler pool projection. Inference
+introspects the checkpoint and builds a matching architecture, so both generations
+load without manual configuration.
 
 ## Checkpoints
 

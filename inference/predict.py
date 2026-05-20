@@ -13,7 +13,14 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from model import build_model, load_checkpoint, find_chromophore_positions, TARGETS
+from model import (
+    build_model,
+    build_model_for_checkpoint,
+    detect_checkpoint_arch,
+    load_checkpoint,
+    find_chromophore_positions,
+    TARGETS,
+)
 
 CLAMP_RANGES = {
     "ex_max": (300, 800), "em_max": (300, 800),
@@ -153,10 +160,6 @@ def main():
 
     print(f"Checkpoints: {len(ckpt_paths)}")
 
-    # Build model
-    print("Loading ESM2-650M + LoRA...")
-    model, alphabet = build_model(device=device)
-
     # Load sequences
     if args.sequence:
         sequences = [(args.name, args.sequence)]
@@ -164,10 +167,33 @@ def main():
         sequences = parse_fasta(args.fasta)
     print(f"Sequences: {len(sequences)}")
 
-    # Predict (ensemble if multiple checkpoints)
-    all_fold_results = []
-    for ckpt_path in ckpt_paths:
-        target_stats = load_checkpoint(model, str(ckpt_path), device=device)
+    # Build model once, sized to match the first checkpoint. Subsequent checkpoints
+    # in an ensemble must share the same architecture; we verify that explicitly.
+    print("Loading ESM2-650M + LoRA...")
+    model, alphabet, target_stats = build_model_for_checkpoint(
+        str(ckpt_paths[0]), device=device
+    )
+    arch0 = detect_checkpoint_arch(
+        torch.load(str(ckpt_paths[0]), map_location=device, weights_only=False)["trainable_state"]
+    )
+
+    all_fold_results = [
+        predict_batch(model, alphabet, sequences, target_stats,
+                      device=device, batch_size=args.batch_size)
+    ]
+    print(f"  Predicted with {ckpt_paths[0].parent.name}")
+
+    for ckpt_path in ckpt_paths[1:]:
+        ckpt = torch.load(str(ckpt_path), map_location=device, weights_only=False)
+        archi = detect_checkpoint_arch(ckpt["trainable_state"])
+        if archi != arch0:
+            print(f"Error: checkpoint {ckpt_path} has architecture {archi}, "
+                  f"which differs from {ckpt_paths[0]} ({arch0}). "
+                  "Cannot mix architectures in one ensemble.")
+            sys.exit(1)
+        model.load_state_dict(ckpt["trainable_state"], strict=False)
+        model.eval()
+        target_stats = ckpt["target_stats"]
         fold_results = predict_batch(model, alphabet, sequences, target_stats,
                                      device=device, batch_size=args.batch_size)
         all_fold_results.append(fold_results)
